@@ -2,9 +2,12 @@
   "name": "certflow",
   "version": "1.0.0",
   "description": "Bulk e-certificate email sender",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "start": "node server.js",
+    "vercel:dev": "vercel dev",
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.1",
@@ -13,7 +16,10 @@
     "multer": "^2.1.1",
     "nodemailer": "^6.10.1"
   },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
   "engines": {
-    "node": "24.x"
+    "node": "18.x"
   }
 }
