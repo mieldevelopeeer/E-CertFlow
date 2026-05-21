@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "functions": {
+    "api/send-email.js": {
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    { "src": "/api/send-email", "dest": "/api/send-email.js" }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

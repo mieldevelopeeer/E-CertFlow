@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CertFlow · E-Certificate Distribution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/icons8-mail-32.png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <a href="#" class="sidebar-logo" onclick="navigate('compose'); return false;">
+        <span class="brand-mark">
+          <img src="images/icons8-mail-32.png" alt="" width="28" height="28" />
+        </span>
+        <span class="sidebar-logo__text">
+          <span class="sidebar-logo__name">CertFlow</span>
+          <span class="sidebar-logo__sub">E-Certificate</span>
+        </span>
+      </a>
+      <p class="sidebar-logo__org">International Ambassador Organization</p>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main">
+      <button class="nav-item active" data-page="compose" onclick="navigate('compose')">
+        <i class="fas fa-paper-plane"></i><span>Compose</span>
+      </button>
+      <button class="nav-item" data-page="logs" onclick="navigate('logs')">
+        <i class="fas fa-inbox"></i><span>Sent e-certificates</span>
+      </button>
+      <button class="nav-item" data-page="credentials" onclick="navigate('credentials')">
+        <i class="fas fa-key"></i><span>Credentials</span>
+      </button>
+      <button type="button" class="nav-item nav-item--muted" onclick="openAboutModal()">
+        <i class="fas fa-circle-info"></i><span>About</span>
+      </button>
+      <hr class="sidebar-divider" />
+      <button class="nav-item nav-item--muted" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-row">
+        <div class="status-dot" id="dbStatus"></div>
+        <span id="dbStatusText">connecting</span>
+      </div>
+      <p class="sidebar-org">International Ambassador Organization</p>
+      <p class="sidebar-credit">Developed by <strong>GAP</strong> 2026</p>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <main class="main-content">
+      <!-- Compose -->
+      <section class="page active" id="page-compose">
+        <header class="page-header page-header--with-desc">
+          <div>
+            <p class="page-eyebrow">E-Certificate</p>
+            <h1>Compose</h1>
+            <p class="page-desc">Send official e-certificates with PDF or image attachments. Each delivery is saved for the International Ambassador Organization records.</p>
+          </div>
+        </header>
+
+        <div class="step-label" aria-hidden="true"><span class="step-num">1</span> Message</div>
+        <div class="panel panel--interactive">
+          <div class="panel__head" id="settingsHeader">
+            <h3><i class="fas fa-sliders-h"></i> E-Certificate message</h3>
+            <i class="fas fa-chevron-down toggle-icon" aria-hidden="true"></i>
+          </div>
+          <div class="panel__body" id="settingsContent">
+            <div class="form-grid">
+              <div class="field-group">
+                <label><i class="fas fa-user-check"></i> From (Gmail)</label>
+                <select id="credSelect"><option value="">— select sender —</option></select>
+              </div>
+              <div class="field-group">
+                <label><i class="fas fa-heading"></i> Subject</label>
+                <input type="text" id="emailSubject" placeholder="E-Certificate — {{name}}" value="E-Certificate" />
+              </div>
+              <div class="field-group form-grid--full">
+                <label><i class="fas fa-edit"></i> Body</label>
+                <textarea id="emailBody" rows="6">We are pleased to deliver your official e-certificate from the International Ambassador Organization.
+
+Warm regards,
+International Ambassador Organization</textarea>
+                <p class="field-hint"><i class="fas fa-info-circle"></i> “Dear {{name}},” is added automatically. Use {{name}} or {{email}} in the subject or body if needed.</p>
+              </div>
+              <div class="field-group form-grid--full">
+                <label><i class="fas fa-paperclip"></i> Default attachment (all recipients)</label>
+                <div class="drop-zone" id="globalDropArea" tabindex="0" role="button">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span>Drop PDF or image here, or click to browse</span>
+                </div>
+                <input type="file" id="globalFileInput" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                <div id="globalFilePreview" class="file-preview"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-label" aria-hidden="true"><span class="step-num">2</span> Recipients</div>
+        <div class="panel panel--interactive">
+          <div class="panel__head panel__head--flat">
+            <h3><i class="fas fa-users"></i> Recipient list</h3>
+            <div class="panel__actions">
+              <button type="button" class="btn-outline btn-sm" onclick="importCSV()"><i class="fas fa-file-csv"></i> Import CSV</button>
+              <button type="button" class="btn-outline btn-sm" onclick="addRecipRow()"><i class="fas fa-plus"></i> Add row</button>
+              <input type="file" id="csvInput" accept=".csv" hidden />
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Attachment</th>
+                  <th class="col-narrow"></th>
+                </tr>
+              </thead>
+              <tbody id="recipBody"></tbody>
+            </table>
+          </div>
+          <div class="panel__foot">
+            <span class="muted"><i class="fas fa-user-friends"></i> <span id="recipCount">0</span> recipient(s)</span>
+            <button type="button" class="btn-primary" id="sendBtn" onclick="sendEmails()">
+              <i class="fas fa-paper-plane"></i> <span id="sendLabel">Send e-certificates</span>
+            </button>
+          </div>
+          <div id="progressWrap" class="progress-area" hidden>
+            <div class="progress-fill" id="progressBarFill"></div>
+            <span id="progressText" class="progress-text">0 / 0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sent emails -->
+      <section class="page" id="page-logs">
+        <header class="page-header page-header--with-desc">
+          <div>
+            <p class="page-eyebrow">Delivery log</p>
+            <h1>Sent e-certificates</h1>
+            <p class="page-desc">Review deliveries, open attachments, edit messages, and resend failed e-certificates.</p>
+          </div>
+        </header>
+        <div id="sentStats" class="stat-grid"></div>
+        <div class="panel panel--interactive">
+          <div class="toolbar">
+            <div class="filter-pills" role="tablist" aria-label="Filter logs">
+              <button type="button" class="filter-pill active" data-filter="sent" onclick="setLogFilter('sent')"><i class="fas fa-check-circle"></i> Sent</button>
+              <button type="button" class="filter-pill" data-filter="failed" onclick="setLogFilter('failed')"><i class="fas fa-times-circle"></i> Failed</button>
+              <button type="button" class="filter-pill" data-filter="all" onclick="setLogFilter('all')"><i class="fas fa-list"></i> All</button>
+            </div>
+            <div class="toolbar__end">
+              <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="search" id="logSearch" class="search-input" placeholder="Search name or email…" oninput="filterLogs()" />
+              </div>
+              <button type="button" class="btn-outline btn-icon" onclick="loadLogs()" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+          </div>
+          <div id="logList" class="sent-list-wrap">
+            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Credentials -->
+      <section class="page" id="page-credentials">
+        <header class="page-header page-header--with-desc">
+          <div>
+            <p class="page-eyebrow">Senders</p>
+            <h1>Credentials</h1>
+            <p class="page-desc">Connect Gmail accounts used to send e-certificates on behalf of the organization.</p>
+          </div>
+        </header>
+
+        <div class="panel panel--interactive cred-form-card">
+          <div class="panel__head panel__head--flat">
+            <h3 id="credFormTitle"><i class="fas fa-plus-circle"></i> Add credential</h3>
+            <button type="button" class="btn-outline btn-sm" id="credCancelBtn" onclick="cancelCredEdit()" hidden>Cancel</button>
+          </div>
+          <div class="panel__body">
+            <div class="cred-preview" id="credPreview">
+              <img id="credPreviewImg" class="avatar" alt="" hidden />
+              <div id="credPreviewInitials" class="avatar avatar--initials">?</div>
+              <div class="cred-preview-text">
+                <strong id="credPreviewName">Your Gmail name</strong>
+                <span id="credPreviewEmail">email@gmail.com</span>
+              </div>
+            </div>
+            <div id="googleSignInWrap" class="google-signin-wrap" hidden>
+              <div id="googleSignInBtn"></div>
+              <span class="field-hint">Import name &amp; photo from Google</span>
+            </div>
+            <div class="form-grid">
+              <div class="field-group">
+                <label>Display name</label>
+                <input type="text" id="credDisplayName" placeholder="As shown in Gmail" />
+              </div>
+              <div class="field-group">
+                <label>Gmail address</label>
+                <input type="email" id="credEmail" placeholder="you@gmail.com" />
+              </div>
+              <input type="hidden" id="credLabel" />
+              <input type="hidden" id="credPhotoUrl" />
+              <div class="field-group">
+                <label>SMTP host</label>
+                <input type="text" id="credHost" value="smtp.gmail.com" />
+              </div>
+              <div class="field-group">
+                <label>Port</label>
+                <input type="number" id="credPort" value="465" />
+              </div>
+              <div class="field-group form-grid--full">
+                <label>App password</label>
+                <input type="password" id="credPass" placeholder="Leave blank when updating to keep current" />
+              </div>
+            </div>
+            <p class="field-hint"><i class="fas fa-info-circle"></i> Empty display name → Gmail uses your <a href="https://myaccount.google.com/profile/name" target="_blank" rel="noopener">Google Account name</a>.</p>
+            <button type="button" class="btn-primary" id="credSaveBtn" onclick="saveCred()"><i class="fas fa-save"></i> <span id="credSaveLabel">Save credential</span></button>
+          </div>
+        </div>
+        <div id="credList" class="card-list"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span class="app-footer__org">International Ambassador Organization</span>
+      <span class="app-footer__gap">Developed by <strong>GAP</strong> 2026</span>
+    </footer>
+  </div>
+</div>
+
+<!-- E-Certificate delivery modal -->
+<div id="emailModal" class="modal" hidden aria-hidden="true">
+  <div class="modal__backdrop" onclick="closeEmailModal()"></div>
+  <div class="modal__dialog modal__dialog--wide" role="dialog" aria-labelledby="emailModalTitle">
+    <div class="modal__header">
+      <div>
+        <p class="modal__eyebrow">Delivery details</p>
+        <h2 id="emailModalTitle"><i class="fas fa-certificate"></i> E-Certificate record</h2>
+      </div>
+      <button type="button" class="btn-icon btn-ghost" onclick="closeEmailModal()" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <input type="hidden" id="modalLogId" />
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="field-group">
+        <label><i class="fas fa-heading"></i> E-Certificate subject</label>
+        <input type="text" id="modalSubject" placeholder="E-Certificate" />
+      </div>
+      <div class="field-group">
+        <label><i class="fas fa-envelope-open-text"></i> Message body</label>
+        <textarea id="modalBody" rows="8" placeholder="Message sent with the e-certificate…"></textarea>
+      </div>
+      <div class="field-group">
+        <label><i class="fas fa-paperclip"></i> E-Certificate files</label>
+        <div id="modalAttachments" class="attachment-list"></div>
+        <p class="field-hint modal-hint">Replace files below before saving or resending.</p>
+        <div class="attachment-uploads">
+          <div class="attach-row">
+            <span class="attach-label">Shared attachment (all)</span>
+            <input type="file" id="modalGlobalFile" accept=".pdf,.jpg,.jpeg,.png" class="input-file" />
+          </div>
+          <div class="attach-row">
+            <span class="attach-label">Recipient attachment</span>
+            <input type="file" id="modalRecipFile" accept=".pdf,.jpg,.jpeg,.png" class="input-file" />
+          </div>
+        </div>
+      </div>
+      <div id="modalError" class="alert alert--danger" hidden></div>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn-outline" onclick="closeEmailModal()">Cancel</button>
+      <button type="button" class="btn-outline" onclick="saveEmailLog()"><i class="fas fa-save"></i> Save changes</button>
+      <button type="button" class="btn-primary" onclick="resendFromModal()"><i class="fas fa-redo"></i> Resend e-certificate</button>
+    </div>
+  </div>
+</div>
+
+<!-- About platform modal -->
+<div id="aboutModal" class="modal" hidden aria-hidden="true">
+  <div class="modal__backdrop" onclick="closeAboutModal()"></div>
+  <div class="modal__dialog" role="dialog" aria-labelledby="aboutModalTitle">
+    <div class="modal__header">
+      <div>
+        <p class="modal__eyebrow">International Ambassador Organization</p>
+        <h2 id="aboutModalTitle"><i class="fas fa-certificate"></i> About CertFlow</h2>
+      </div>
+      <button type="button" class="btn-icon btn-ghost" onclick="closeAboutModal()" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body modal__body--about">
+      <p class="about-lead">CertFlow is the official <strong>e-certificate distribution platform</strong> for the International Ambassador Organization.</p>
+      <ul class="about-list">
+        <li><i class="fas fa-paper-plane"></i> Send personalized e-certificates in bulk</li>
+        <li><i class="fas fa-inbox"></i> Track sent and failed deliveries</li>
+        <li><i class="fas fa-redo"></i> Edit and resend from delivery records</li>
+        <li><i class="fas fa-key"></i> Manage Gmail SMTP sender accounts</li>
+      </ul>
+      <p class="about-meta">Developed by <strong>GAP</strong> · 2026</p>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn-primary" onclick="closeAboutModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"><i class="fas fa-circle-info"></i> <span id="toastMsg"></span></div>
+
+<script>
+(function checkAuth() {
+  const SESSION_KEY = 'certflow_authenticated';
+  const session = localStorage.getItem(SESSION_KEY);
+  const currentPath = window.location.pathname;
+  const basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+  if (!session) { window.location.href = basePath + 'login.html'; return; }
+  try {
+    const { expiry } = JSON.parse(session);
+    if (!expiry || Date.now() > expiry) {
+      localStorage.removeItem(SESSION_KEY);
+      window.location.href = basePath + 'login.html';
+    }
+  } catch (e) {
+    localStorage.removeItem(SESSION_KEY);
+    window.location.href = basePath + 'login.html';
+  }
+})();
+</script>
+<script src="js/app.js"></script>
+</body>
+</html>

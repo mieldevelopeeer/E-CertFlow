@@ -1,0 +1,4 @@
+RewriteEngine On
+
+# Route email API (Laragon/Apache cannot run Vercel serverless .js files)
+RewriteRule ^api/send-email$ api/send-email.php [L,QSA]

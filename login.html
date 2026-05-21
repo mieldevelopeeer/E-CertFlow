@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CertFlow · Sign in</title>
+  <link rel="icon" type="image/png" href="images/icons8-mail-32.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+<body>
+  <div class="login-page">
+    <aside class="login-brand">
+      <div class="login-brand__content">
+        <div class="brand-mark">
+          <img src="images/icons8-mail-32.png" alt="" width="32" height="32" />
+        </div>
+        <p class="brand-org">International Ambassador Organization</p>
+        <h1 class="brand-title">CertFlow</h1>
+        <p class="brand-desc">Official e-certificate distribution for the International Ambassador Organization</p>
+        <ul class="brand-list">
+          <li><i class="fas fa-check"></i> Bulk e-certificate delivery</li>
+          <li><i class="fas fa-check"></i> Gmail SMTP integration</li>
+          <li><i class="fas fa-check"></i> Tracking &amp; resend</li>
+        </ul>
+      </div>
+      <p class="brand-credit">Developed by <strong>GAP</strong> 2026</p>
+    </aside>
+
+    <main class="login-main">
+      <div class="login-panel">
+        <div class="login-panel__header login-panel__header--mobile">
+          <div class="brand-mark brand-mark--sm">
+            <img src="images/icons8-mail-32.png" alt="" width="28" height="28" />
+          </div>
+          <div>
+            <span class="panel-title">CertFlow</span>
+            <span class="panel-sub">E-Certificate</span>
+          </div>
+        </div>
+
+        <div class="login-card" id="loginCard">
+          <header class="login-card__head">
+            <h2>Sign in</h2>
+            <p>Enter your authorized 6-digit passcode</p>
+          </header>
+
+          <form class="login-form" id="loginForm" novalidate>
+            <label class="sr-only" for="passcode-0">Passcode</label>
+            <div class="passcode-row" id="passcodeGroup" role="group" aria-label="6-digit passcode">
+              <input type="password" class="passcode-box" id="passcode-0" maxlength="1" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit 1" />
+              <input type="password" class="passcode-box" id="passcode-1" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Digit 2" />
+              <input type="password" class="passcode-box" id="passcode-2" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Digit 3" />
+              <input type="password" class="passcode-box" id="passcode-3" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Digit 4" />
+              <input type="password" class="passcode-box" id="passcode-4" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Digit 5" />
+              <input type="password" class="passcode-box" id="passcode-5" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Digit 6" />
+            </div>
+            <input type="hidden" id="passcode" name="passcode" />
+
+            <button type="submit" id="loginBtn" class="btn-login">
+              <span class="btn-login__text">Continue to dashboard</span>
+              <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </button>
+
+            <div id="errorMessage" class="alert-error" role="alert" hidden>
+              <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+              <span id="errorText"></span>
+            </div>
+          </form>
+
+          <p class="login-note">
+            <i class="fas fa-shield-halved" aria-hidden="true"></i>
+            Authorized personnel only
+          </p>
+
+          <button type="button" class="btn-about" onclick="openAboutModal()">
+            <i class="fas fa-circle-info" aria-hidden="true"></i>
+            About CertFlow
+          </button>
+        </div>
+
+        <p class="login-footer">
+          <span class="login-footer__org">International Ambassador Organization</span>
+          <span class="login-footer__gap">Developed by <strong>GAP</strong> 2026</span>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <div id="aboutModal" class="modal" hidden aria-hidden="true">
+    <div class="modal__backdrop" onclick="closeAboutModal()"></div>
+    <div class="modal__dialog" role="dialog" aria-labelledby="aboutModalTitle">
+      <div class="modal__header">
+        <div>
+          <p class="modal__eyebrow">International Ambassador Organization</p>
+          <h2 id="aboutModalTitle"><i class="fas fa-certificate"></i> About CertFlow</h2>
+        </div>
+        <button type="button" class="modal__close" onclick="closeAboutModal()" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal__body modal__body--about">
+        <p class="about-lead">CertFlow is the <strong>e-certificate delivery platform</strong> used by the International Ambassador Organization to send official certificates by email.</p>
+        <ul class="about-list">
+          <li><i class="fas fa-paper-plane"></i> Bulk e-certificate delivery</li>
+          <li><i class="fas fa-inbox"></i> Delivery tracking and history</li>
+          <li><i class="fas fa-redo"></i> Resend and update deliveries</li>
+        </ul>
+        <p class="about-meta">Developed by <strong>GAP</strong> · 2026</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn-login btn-login--modal" onclick="closeAboutModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loginSuccess" class="login-success" hidden aria-hidden="true">
+    <div class="login-success__box">
+      <div class="login-success__check"><i class="fas fa-check"></i></div>
+      <p>Welcome back</p>
+    </div>
+  </div>
+
+  <script src="js/login.js"></script>
+</body>
+</html>
