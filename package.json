@@ -2,6 +2,7 @@
   "name": "certflow",
   "version": "1.0.0",
   "description": "Bulk e-certificate email sender",
+  "main": "server.js",
   "scripts": {
     "dev": "node server.js"
   },
