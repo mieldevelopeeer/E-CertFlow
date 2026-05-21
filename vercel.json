@@ -1,17 +1,17 @@
 {
   "version": 2,
-  "functions": {
-    "api/send-email.js": {
-      "maxDuration": 30
-    }
-  },
-  "routes": [
-    { "src": "/api/send-email", "dest": "/api/send-email.js" }
-  ],
-  "rewrites": [
+  "builds": [
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/send-email.js",
+      "use": "@vercel/node"
     }
+  ],
+  "routes": [
+    { "src": "/api/send-email", "dest": "/api/send-email.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
